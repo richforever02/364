@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Blueprint 364 | Hardware Grid</title>
+    <title>Blueprint 364 | Year 5999</title>
 
+    <!-- PWA Manifest & Meta -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#e2e8f0">
+    
     <!-- iOS Web App Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="white-translucent">
     <meta name="apple-mobile-web-app-title" content="BP-364">
-    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/1x1.png/120px-1x1.png">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/1x1.png/192px-1x1.png">
 
     <style>
         :root {
@@ -226,7 +230,7 @@
             background: #fff;
         }
 
-        /* 364-Cell Grid Modal (HARDWARE SPECS) */
+        /* 364-Cell Grid Modal */
         #grid-modal {
             position: absolute;
             top: 0;
@@ -389,7 +393,7 @@
 
             <div class="readout">
                 <div id="admin-time">00:00:00</div>
-                <div id="admin-date-short">W1 • D1</div>
+                <div id="admin-date-short">W1 â¢ D1</div>
             </div>
         </div>
 
@@ -397,7 +401,7 @@
             <h2 id="quadrant-display">Quadrant 1</h2>
             <div id="date-display" style="font-size: 1.1rem; font-weight: 400; margin-bottom: 0.25rem;"></div>
             <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">
-                Cycle <span id="cycle-display" style="font-weight: 700; color: var(--text-main);"></span>
+                Year <span id="cycle-display" style="font-weight: 700; color: var(--text-main);"></span>
             </div>
             
             <div class="quadrant-details">
@@ -432,67 +436,59 @@
     </div>
 
     <script>
-        /**
-         * BLUEPRINT 364 - Pure Mathematical Hardware Logic
-         * - Zero reliance on Gregorian Years/Months.
-         * - Pure modulo 364 arithmetic applied to absolute days elapsed.
-         * - Drift = 0.
-         */
+        // --- Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then((registration) => {
+                    console.log('ServiceWorker registered with scope:', registration.scope);
+                }, (err) => {
+                    console.log('ServiceWorker registration failed:', err);
+                });
+            });
+        }
 
-        // The absolute anchor point in time: Wednesday, March 20, 2024 (Local Midnight)
-        const HARDWARE_EPOCH_MS = new Date(2024, 2, 20, 0, 0, 0).getTime();
+        // --- Core 364 Logic anchored to Year 5999 ---
+        // Wednesday, March 18, 2026 is mathematically designated as Day 1 of Year 5999.
+        const HARDWARE_EPOCH_MS = new Date(2026, 2, 18, 0, 0, 0).getTime();
+        const BASE_YEAR = 5999;
         const MS_PER_DAY = 86400000;
 
         function getHardwareDate() {
-            // Count exact physical days since Epoch, ignoring local DST shifts via Math.round
             const currentLocalMidnight = new Date();
             currentLocalMidnight.setHours(0, 0, 0, 0);
             
+            // Calculate elapsed days since the Year 5999 Anchor
             const daysElapsed = Math.round((currentLocalMidnight.getTime() - HARDWARE_EPOCH_MS) / MS_PER_DAY);
 
-            // Pure Modulo Arithmetic for the 364 Cycle
-            const cycleYear = Math.floor(daysElapsed / 364) + 1;
-            
-            // Handles both forward progression and historical negative lookbacks flawlessly
+            const cycleYear = BASE_YEAR + Math.floor(daysElapsed / 364);
             const dayOfYearIndex = ((daysElapsed % 364) + 364) % 364; 
 
-            // 4 Strict Quadrants (91 days each)
             const quarter = Math.floor(dayOfYearIndex / 91);
             const dayOfQuarter = dayOfYearIndex % 91;
 
-            // Strict 30-30-31 architecture per Quadrant
             let monthOfQuarter, dayOfMonth;
             if (dayOfQuarter < 30) {
-                monthOfQuarter = 0; // Gate 1
+                monthOfQuarter = 0; 
                 dayOfMonth = dayOfQuarter + 1;
             } else if (dayOfQuarter < 60) {
-                monthOfQuarter = 1; // Gate 2
+                monthOfQuarter = 1; 
                 dayOfMonth = (dayOfQuarter - 30) + 1;
             } else {
-                monthOfQuarter = 2; // Gate 3 (31st day is the Cornerstone)
+                monthOfQuarter = 2; 
                 dayOfMonth = (dayOfQuarter - 60) + 1;
             }
 
             const globalMonth = (quarter * 3) + monthOfQuarter + 1;
-            
-            // Day 0 of the architecture is ALWAYS Wednesday.
             const daysOfWeek = ["Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Monday", "Tuesday"];
             const dayOfWeek = daysOfWeek[dayOfYearIndex % 7];
 
             const quadrants = ["Quadrant 1", "Quadrant 2", "Quadrant 3", "Quadrant 4"];
             const quadrant = quadrants[quarter];
-            
             const weekOfYear = Math.floor(dayOfYearIndex / 7) + 1;
 
             return {
-                cycleYear, 
-                month: globalMonth, 
-                day: dayOfMonth, 
-                dayOfWeek,
-                dayOfYear: dayOfYearIndex + 1, 
-                dayOfYearIndex, 
-                quadrant, 
-                weekOfYear
+                cycleYear, month: globalMonth, day: dayOfMonth, dayOfWeek,
+                dayOfYear: dayOfYearIndex + 1, dayOfYearIndex, quadrant, weekOfYear
             };
         }
 
@@ -504,10 +500,8 @@
         const elMonth = document.getElementById('month-display');
         const elWeek = document.getElementById('week-display');
         const elDayOfYear = document.getElementById('day-of-year-display');
-        
         const sunBody = document.getElementById('sun-body');
         const moonBody = document.getElementById('moon-body');
-        
         const gridScroller = document.getElementById('grid-scroller');
         let gridGenerated = false;
 
@@ -515,32 +509,26 @@
             const now = new Date();
             const hwDate = getHardwareDate();
 
-            // Hardware Time
             elTime.textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-            
-            // Hardware Readouts
-            elDateShort.textContent = `W${hwDate.weekOfYear} • D${hwDate.day}`;
+            elDateShort.textContent = `W${hwDate.weekOfYear} â¢ D${hwDate.day}`;
             elQuadrant.textContent = hwDate.quadrant;
             elDateFull.textContent = `${hwDate.dayOfWeek}, Day ${hwDate.day}`;
-            elCycle.textContent = String(hwDate.cycleYear).padStart(2, '0');
+            elCycle.textContent = hwDate.cycleYear;
             elMonth.textContent = `M${hwDate.month}`;
             elWeek.textContent = `W${hwDate.weekOfYear}`;
             elDayOfYear.textContent = `${hwDate.dayOfYear}/364`;
 
-            // Node Animation (Progression along the 364 Track)
             const sunAngle = (hwDate.dayOfYearIndex / 364) * 360 - 90;
             const sX = Math.cos(sunAngle * (Math.PI / 180)) * 120;
             const sY = Math.sin(sunAngle * (Math.PI / 180)) * 120;
             sunBody.style.transform = `translate(${sX}px, ${sY}px)`;
 
-            // Sub-Node Continuous Orbit
             const msElapsed = now.getTime() - HARDWARE_EPOCH_MS;
             const continuousAngle = ((msElapsed % (29.53 * MS_PER_DAY)) / (29.53 * MS_PER_DAY)) * 360 - 90;
             const mX = Math.cos(continuousAngle * (Math.PI / 180)) * 90;
             const mY = Math.sin(continuousAngle * (Math.PI / 180)) * 90;
             moonBody.style.transform = `translate(${mX}px, ${mY}px)`;
 
-            // Generate Structural Architecture
             if (!gridGenerated) {
                 buildHardwareGrid(hwDate.dayOfYearIndex);
                 gridGenerated = true;
@@ -552,7 +540,7 @@
         function buildHardwareGrid(currentDayIndex) {
             gridScroller.innerHTML = '';
             const quadrantsList = ["Quadrant 1", "Quadrant 2", "Quadrant 3", "Quadrant 4"];
-            const daysOfWeek = ["W","T","F","S","S","M","T"]; // Day 1 is ALWAYS Wednesday in this architecture
+            const daysOfWeek = ["W","T","F","S","S","M","T"]; 
 
             for (let q = 0; q < 4; q++) {
                 const quadBlock = document.createElement('div');
@@ -595,7 +583,6 @@
 
                     grid.appendChild(cell);
                 }
-
                 quadBlock.appendChild(grid);
                 gridScroller.appendChild(quadBlock);
             }
@@ -612,7 +599,6 @@
             });
         }
 
-        // Modal Controls
         const btnOpen = document.getElementById('grid-toggle');
         const btnClose = document.getElementById('close-modal');
         const modal = document.getElementById('grid-modal');
