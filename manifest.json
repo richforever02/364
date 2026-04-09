@@ -1,0 +1,25 @@
+```json
+{
+  "name": "Blueprint 364 Hardware Grid",
+  "short_name": "BP-364",
+  "description": "A structurally absolute 364-Cell Hardware Grid Audit Tool",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#e2e8f0",
+  "theme_color": "#e2e8f0",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/1x1.png/192px-1x1.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/1x1.png/512px-1x1.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+
+```
