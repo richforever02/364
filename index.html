@@ -393,7 +393,7 @@
 
             <div class="readout">
                 <div id="admin-time">00:00:00</div>
-                <div id="admin-date-short">W1 â¢ D1</div>
+                <div id="admin-date-short">W1 • D1</div>
             </div>
         </div>
 
@@ -510,7 +510,7 @@
             const hwDate = getHardwareDate();
 
             elTime.textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-            elDateShort.textContent = `W${hwDate.weekOfYear} â¢ D${hwDate.day}`;
+            elDateShort.textContent = `W${hwDate.weekOfYear} • D${hwDate.day}`;
             elQuadrant.textContent = hwDate.quadrant;
             elDateFull.textContent = `${hwDate.dayOfWeek}, Day ${hwDate.day}`;
             elCycle.textContent = hwDate.cycleYear;
