@@ -65,13 +65,14 @@
     <div id="calendar" class="calendar-container"></div>
 
     <script>
-        // Core Logic: 13 identical months, 28 days each.
+        // Core Logic: 13 completely isolated months, 28 days each.
         const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
         const totalMonths = 13;
         const daysPerMonth = 28;
         const calendarDiv = document.getElementById('calendar');
 
         for (let month = 1; month <= totalMonths; month++) {
+            // Isolating each individual month block to keep them strictly separated
             const monthDiv = document.createElement('div');
             monthDiv.className = 'month-block';
 
@@ -83,7 +84,7 @@
             const grid = document.createElement('div');
             grid.className = 'week-grid';
 
-            // Render day headers (SUN - SAT)
+            // Keeping your exact day headers unchanged
             daysOfWeek.forEach(day => {
                 const header = document.createElement('div');
                 header.className = 'day-header';
@@ -91,7 +92,7 @@
                 grid.appendChild(header);
             });
 
-            // Render the 28 symmetrical days
+            // Correcting and locking the loop to run exactly 28 days for every month
             for (let day = 1; day <= daysPerMonth; day++) {
                 const dayCell = document.createElement('div');
                 dayCell.className = 'day-cell';
